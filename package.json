@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "test": "mocha test.js",
-    "test:watch": "mocha --watch test.js ./"
+    "test:watch": "mocha --watch ./test/memoization.test.js ./"
   },
   "dependencies": {
     "chai": "^4.1.2",

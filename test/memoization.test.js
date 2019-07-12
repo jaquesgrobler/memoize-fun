@@ -18,6 +18,7 @@ describe("memoization", function() {
     expect(memoized(testKey)).to.equal(5);
   });
 
+  // Test our timeout functinality
   it("should forget the result after timeout", () => {
     let returnValue = 5;
     const testKey = "c544d3ae-a72d-4755-8ce5-d25db415b776";
