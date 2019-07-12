@@ -2,7 +2,7 @@
   "name": "memoization",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/b-ono/memoization.git",
+  "repository": "https://github.com/jaquesgrobler/memoize-fun",
   "author": "Jaques Grobler <jaquesgrobler@gmail.com>",
   "license": "MIT",
   "scripts": {

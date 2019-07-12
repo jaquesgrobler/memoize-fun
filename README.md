@@ -55,3 +55,9 @@ Functions    : 100% ( 1/1 )
 Lines        : 100% ( 19/19 )
 ================================================================================
 ```
+
+**Other notes**
+
+- I decided to **not** add the `coverage` files to the `.gitignore`, so if needed, they can be viewed. Ordinarily it wouldn't be committed.
+
+- I decided not to over-refactor the test-file, as there is a bit of repeat code within the tests that could be pulled out. However, since the file is documenting my process more-or-less, I thought it keep it more explicit so its easier to read.
