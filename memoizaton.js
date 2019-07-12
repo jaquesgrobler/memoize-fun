@@ -29,6 +29,12 @@ function memoize(func, resolver, timeout = 0) {
   const memoCache = {};
   return (...arguments) => {
     const cacheKey = keyResolver(resolver, arguments);
+
+    if (!memoCache[cacheKey]) {
+      memoCache[cacheKey] = func(...arguments);
+    }
+
+    return memoCache[cacheKey];
   };
 }
 
