@@ -32,6 +32,7 @@ function memoize(func, resolver, timeout) {
     try {
       const cacheKey = keyResolver(resolver, arguments);
 
+      // If we havent seen this key, calculate its value
       if (!memoCache[cacheKey]) {
         memoCache[cacheKey] = func(...arguments);
 
@@ -40,7 +41,6 @@ function memoize(func, resolver, timeout) {
           setTimeout(() => delete memoCache[cacheKey], timeout);
         }
       }
-
       return memoCache[cacheKey];
     } catch (error) {
       throw new Error(error.message);
