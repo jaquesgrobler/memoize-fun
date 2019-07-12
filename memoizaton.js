@@ -11,7 +11,7 @@
  *
  * const memoized = memoization.memoize(addToTime, (year, month, day) => year + month + day, 5000)
  *
- * // call the provided function cache the result and return the value
+ * // call the provided function, cache the result and return the value
  * const result = memoized(1, 11, 26); // result = 1534252012350
  *
  * // because there was no timeout this call should return the memorized value from the first call
@@ -25,11 +25,25 @@
  *                  original function, the resolver function should provide the memoization key.
  * @param timeout   timeout for cached values in milliseconds
  */
-function memoize(func, resolver, timeout) {
-    // TODO implement the memoize function
-    return func;
+function memoize(func, resolver, timeout = 0) {
+  const memoCache = {};
+  return (...arguments) => {
+    const cacheKey = keyResolver(resolver, arguments);
+  };
 }
 
+// This could be inline, but I chose to pull this out to have a test in place
+// Should the logic behind the resolver decision every need to change,
+// Additionally, error-handling
+const keyResolver = (resolver, args) => {
+  if (args.length == 0) {
+    throw new Error("Unable to create cache keys without function arguments");
+  }
+
+  return resolver ? resolver(...args) : args[0];
+};
+
 module.exports = {
-    memoize,
+  memoize,
+  keyResolver
 };
