@@ -37,6 +37,53 @@ describe("memoization", function() {
     expect(memoized(testKey)).to.equal(10);
   });
 
+  it("should memoize results for different calls without resolver", () => {
+    let returnValue = 5;
+    const testFunction = key => returnValue;
+    const memoized = memoization.memoize(testFunction);
+    expect(memoized(5)).to.equal(5);
+
+    returnValue = 10;
+    expect(memoized(10)).to.equal(10);
+    expect(memoized(5)).to.equal(5);
+    // Not cached yet, so will execute testFunction and set 7: 10
+    expect(memoized(7)).to.equal(10);
+    returnValue = 7;
+    expect(memoized(7)).to.not.equal(7);
+  });
+
+  it("should memoize results with mixed types as keys", () => {
+    let returnValue = 5;
+    const testFunction = key => returnValue;
+    const memoized = memoization.memoize(testFunction);
+
+    // Array key
+    expect(memoized(["cat", "dog"])).to.equal(5);
+    returnValue = 10;
+    expect(memoized(["cat", "dog"])).to.equal(5);
+    expect(memoized(["pig", "dog"])).to.equal(10);
+    returnValue = 15;
+    expect(memoized(["pig", "dog"])).to.equal(10);
+
+    // Object key
+    expect(memoized({ cat: "siamese", dog: "bulldog" })).to.equal(15);
+    returnValue = 20;
+    expect(memoized({ cat: "siamese", dog: "bulldog" })).to.equal(15);
+    expect(memoized({ pig: "peppa", dog: "chow" })).to.equal(20);
+
+    // Function key
+    expect(memoized(() => returnValue)).to.equal(20);
+    returnValue = 25;
+    expect(memoized(() => returnValue)).to.equal(20);
+    expect(memoized(() => [returnValue])).to.equal(25);
+
+    // Boolean key
+    expect(memoized(true)).to.equal(25);
+    returnValue = 30;
+    expect(memoized(true)).to.equal(25);
+    expect(memoized(false)).to.equal(30);
+  });
+
   it("should memoize result and recalculate if expired [example test]", () => {
     // I added the `valueOf` here, as the original example does a concatination of Date.now()'s
     // numeric value with the Date(y,m,d) string.

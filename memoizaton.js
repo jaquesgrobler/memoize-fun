@@ -30,13 +30,14 @@ function memoize(func, resolver, timeout) {
 
   return (...arguments) => {
     try {
+      // First we need our key
       const cacheKey = keyResolver(resolver, arguments);
 
-      // If we havent seen this key, calculate its value
+      // If we havent seen this key, calculate its value and store it
       if (!memoCache[cacheKey]) {
         memoCache[cacheKey] = func(...arguments);
 
-        // Now we add timing.
+        // Now we add timing - clear the value after the timeout
         if (timeout) {
           setTimeout(() => delete memoCache[cacheKey], timeout);
         }
@@ -52,11 +53,18 @@ function memoize(func, resolver, timeout) {
 // Should the logic behind the resolver decision every need to change,
 // Additionally, error-handling
 const keyResolver = (resolver, args) => {
+  let firstArg = args[0];
   if (args.length == 0) {
     throw new Error("Unable to create cache keys without function arguments");
   }
 
-  return resolver ? resolver(...args) : args[0];
+  // Stringify object key if no resolver - as objects will all have the same '[Object object]' key
+  // if no resolver is provided to map them to, say, objectId's or something sane
+  if (!resolver && typeof firstArg === "object") {
+    firstArg = JSON.stringify(firstArg);
+  }
+
+  return resolver ? resolver(...args) : firstArg;
 };
 
 module.exports = {
