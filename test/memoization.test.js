@@ -1,4 +1,4 @@
-const memoization = require("./memoizaton");
+const memoization = require("../src/memoizaton");
 const expect = require("chai").expect;
 
 // I just went with Lolex since I've used it before and it's what `sinon` uses
@@ -13,11 +13,8 @@ describe("memoization", function() {
     const testFunction = key => returnValue;
     const memoized = memoization.memoize(testFunction, key => key, 1000);
     expect(memoized(testKey)).to.equal(5);
-
     returnValue = 10;
 
-    // TODO  it should also work with other types than strings, if there are limitations
-    // to which types are possible please state them
     expect(memoized(testKey)).to.equal(5);
   });
 
@@ -37,7 +34,7 @@ describe("memoization", function() {
     expect(memoized(testKey)).to.equal(10);
   });
 
-  it("should memoize results for different calls without resolver", () => {
+  it("should memoize results for different calls without resolver [numeric keys]", () => {
     let returnValue = 5;
     const testFunction = key => returnValue;
     const memoized = memoization.memoize(testFunction);
@@ -52,36 +49,83 @@ describe("memoization", function() {
     expect(memoized(7)).to.not.equal(7);
   });
 
-  it("should memoize results with mixed types as keys", () => {
+  // Works, but the resolver would be used for better keys here, as long arrays will create giant keys
+  it("should memoize results with array types as keys", () => {
     let returnValue = 5;
     const testFunction = key => returnValue;
     const memoized = memoization.memoize(testFunction);
 
-    // Array key
     expect(memoized(["cat", "dog"])).to.equal(5);
     returnValue = 10;
     expect(memoized(["cat", "dog"])).to.equal(5);
     expect(memoized(["pig", "dog"])).to.equal(10);
     returnValue = 15;
     expect(memoized(["pig", "dog"])).to.equal(10);
+  });
 
-    // Object key
+  // I added a JSON.stringify to my resolver to allow this to work, as just using objects as key will result in them overwriting
+  // eachother, since they'll all just be `[Object object]`. Here one would rather use a resolver to map some attributes
+  // to a key
+  it("should memoize results with object types as keys", () => {
+    let returnValue = 15;
+    const testFunction = key => returnValue;
+    const memoized = memoization.memoize(testFunction);
+
     expect(memoized({ cat: "siamese", dog: "bulldog" })).to.equal(15);
     returnValue = 20;
     expect(memoized({ cat: "siamese", dog: "bulldog" })).to.equal(15);
     expect(memoized({ pig: "peppa", dog: "chow" })).to.equal(20);
+  });
 
-    // Function key
+  // This works, as a functions toString will be used as key, however a resolver should
+  // rather be used to set a more sane key.
+  it("should memoize results with function type as keys", () => {
+    let returnValue = 20;
+    const testFunction = key => returnValue;
+    const memoized = memoization.memoize(testFunction);
+
     expect(memoized(() => returnValue)).to.equal(20);
     returnValue = 25;
     expect(memoized(() => returnValue)).to.equal(20);
     expect(memoized(() => [returnValue])).to.equal(25);
+  });
 
-    // Boolean key
+  // Works for boolean types, though all true's will overwrite eachother obviously, as there are
+  // only two options here. Resolver would be used for a better key if the first argument is boolean.
+  it("should memoize results with boolean types as keys", () => {
+    let returnValue = 25;
+    const testFunction = key => returnValue;
+    const memoized = memoization.memoize(testFunction);
+
     expect(memoized(true)).to.equal(25);
     returnValue = 30;
     expect(memoized(true)).to.equal(25);
     expect(memoized(false)).to.equal(30);
+  });
+
+  it("should memoize results with a function that returns a promise", done => {
+    let returnValue = 30;
+    const testFunction = key => returnValue;
+    const memoized = memoization.memoize(testFunction);
+
+    const fakePromiseCall = () => {
+      return Promise.resolve().then(() => returnValue);
+    };
+
+    const memoizedPromiseCall = memoization.memoize(
+      fakePromiseCall,
+      key => key,
+      1000
+    );
+    memoizedPromiseCall(10).then(result => {
+      expect(result).to.equal(returnValue);
+      done();
+    });
+
+    expect(memoized(Promise.resolve(1))).to.equal(30);
+
+    // Promises as values must have resolvers - so passing a Promise as the first argument and trying to use it a key
+    // would not work well. a resolver would better address this situation.
   });
 
   it("should memoize result and recalculate if expired [example test]", () => {
@@ -91,7 +135,6 @@ describe("memoization", function() {
       return Date.now() + new Date(year, month, day).valueOf();
     };
 
-    //create our memoize funcion, wrapping addToTime, its resolver and a 5s timeout
     const memoized = memoization.memoize(
       addToTime,
       (year, month, day) => year + month + day,

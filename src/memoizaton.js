@@ -25,8 +25,11 @@
  *                  original function, the resolver function should provide the memoization key.
  * @param timeout   timeout for cached values in milliseconds
  */
+
 function memoize(func, resolver, timeout) {
-  const memoCache = {}; // Our key-value cache
+  // Our key-value cache - This could also be placed in the moodule scope since `require` will create a singleton
+  // however its more functionally pure having it here
+  const memoCache = {};
 
   return (...arguments) => {
     try {
@@ -49,9 +52,6 @@ function memoize(func, resolver, timeout) {
   };
 }
 
-// This could be inline, but I chose to pull this out to have a test in place
-// Should the logic behind the resolver decision every need to change,
-// Additionally, error-handling
 const keyResolver = (resolver, args) => {
   let firstArg = args[0];
   if (args.length == 0) {
@@ -59,7 +59,7 @@ const keyResolver = (resolver, args) => {
   }
 
   // Stringify object key if no resolver - as objects will all have the same '[Object object]' key
-  // if no resolver is provided to map them to, say, objectId's or something sane
+  // if no resolver is provided to map them to, say, objectId's or something sane.
   if (!resolver && typeof firstArg === "object") {
     firstArg = JSON.stringify(firstArg);
   }
