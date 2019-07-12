@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/b-ono/memoization.git",
-  "author": "Martin Bonetti <martin.bonetti@omicronenergy.com>",
+  "author": "Jaques Grobler <jaquesgrobler@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "mocha test.js"
+    "test": "mocha test.js",
+    "test:watch": "mocha --watch test.js ./"
   },
   "dependencies": {
     "chai": "^4.1.2",
-    "mocha": "^5.2.0",
-    "sinon": "^6.1.5"
+    "lolex": "^4.1.0",
+    "mocha": "^5.2.0"
   }
 }

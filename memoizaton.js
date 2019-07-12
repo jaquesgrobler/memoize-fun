@@ -25,16 +25,26 @@
  *                  original function, the resolver function should provide the memoization key.
  * @param timeout   timeout for cached values in milliseconds
  */
-function memoize(func, resolver, timeout = 0) {
-  const memoCache = {};
+function memoize(func, resolver, timeout) {
+  const memoCache = {}; // Our key-value cache
+
   return (...arguments) => {
-    const cacheKey = keyResolver(resolver, arguments);
+    try {
+      const cacheKey = keyResolver(resolver, arguments);
 
-    if (!memoCache[cacheKey]) {
-      memoCache[cacheKey] = func(...arguments);
+      if (!memoCache[cacheKey]) {
+        memoCache[cacheKey] = func(...arguments);
+
+        // Now we add timing.
+        if (timeout) {
+          setTimeout(() => delete memoCache[cacheKey], timeout);
+        }
+      }
+
+      return memoCache[cacheKey];
+    } catch (error) {
+      throw new Error(error.message);
     }
-
-    return memoCache[cacheKey];
   };
 }
 
